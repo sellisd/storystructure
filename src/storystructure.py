@@ -55,8 +55,8 @@ class storystructure(object):
          dot ../data/file.dot -Tpng > ../figs/file.png
     """
     with open(fileName, 'w') as f:
-      f.write("digraph {} {".format(graphName))
-      for line in self.nodesAttributes.itertuples():
+      f.write("digraph " + graphName +" {")
+      for line in self.nodeAttributes.itertuples():
         if line.attribute == "pause":
           color = self.colors['pauseColor']
         elif line.attribute == "good":
@@ -66,6 +66,6 @@ class storystructure(object):
         else:
           print("Unknown attribute " + line.attribute)
         f.write('{} [style=filled, fillcolor = "{}"];'.format(line.node, color))
-      for edge in self.edgelist:
-        f.write(edge.source + ' -> ' + edge.target + ';')
+      for edge in self.edgelist.itertuples():
+        f.write(str(edge.source) + ' -> ' + str(edge.target) + ';')
       f.write('}')
