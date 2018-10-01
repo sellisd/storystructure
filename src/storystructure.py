@@ -96,7 +96,7 @@ class storystructure(object):
          dot ../data/file.dot -Tpng > ../figs/file.png
     """
     with open(fileName, 'w') as f:
-      f.write("digraph " + graphName +" {")
+      f.write("digraph " + graphName +" {\n")
       for line in self.nodeAttributes.itertuples():
         if line.attribute == "pause":
           color = self.colors['pauseColor']
@@ -106,10 +106,10 @@ class storystructure(object):
           color = self.colors['badColor']
         else:
           print("Unknown attribute " + line.attribute)
-        f.write('{} [style=filled, fillcolor = "{}"];'.format(line.node, color))
+        f.write('{} [style=filled, fillcolor = "{}"];\n'.format(line.node, color))
       for edge in self.edgelist.itertuples():
-        f.write(str(edge.source) + ' -> ' + str(edge.target) + ';')
-      f.write('}')
+        f.write(str(edge.source) + ' -> ' + str(edge.target) + ';\n')
+      f.write('}\n')
 
   def depth_first(self, root, path):
     path.append(root.id)
