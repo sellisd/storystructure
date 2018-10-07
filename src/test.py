@@ -19,3 +19,8 @@ print([i.id for i in a.getStart()])
 a.graph.setRoot(a.graph.nodes[7])
 
 a.savePathStats(7, '../data/dolmadakia/allPaths.dat')
+
+a.pathsToEdgelist()
+a.saveDot("../data/dolmadakia/structurePaths.dot")
+f = open("../figs/dolmadakiaPaths.png", "w")
+call(["dot", "../data/dolmadakia/structurePaths.dot", "-Tpng"], stdout = f)

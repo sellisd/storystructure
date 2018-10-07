@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import pandas as pd
+import numpy as np
 import sys
 import json
 
@@ -58,6 +59,8 @@ class storystructure(object):
       'badColor'   : "#cb6751" # red
     }
     self.graph = digraph(title)
+    self.paths = {}
+    self.pathCounter = 0
 
   def getStart(self):
     """Get beginning storylet (root of digraph)
@@ -141,6 +144,8 @@ class storystructure(object):
           print("Skipped descending into {} to avoid cycles".format(child.id), file=sys.stderr)
     else:
       self.calculatePathStatistics(path)
+      self.paths[self.pathCounter] = path[:] #path.copy
+      self.pathCounter += 1
 
   def calculatePathStatistics(self, path):
     badEndings = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="bad","node"]
@@ -164,3 +169,16 @@ class storystructure(object):
           stepsToFirstPause = i
           numberOfPause += 1
     self.pathStream.write("\t".join([str(entry) for entry in [pathLength, endType, numberOfPause, stepsToFirstPause, pathString]]) + '\n')
+
+  def pathsToEdgelist(self):
+    """Transform a set of paths to an edgelist and update the storystructure's
+       edgelist
+    """
+    self.edgelist = pd.DataFrame(index = np.arange(100000), columns = ["source","target"])
+    rowCount = 0
+    for path in self.paths.values():
+      for source, target in zip(path[0:-1],path[1:]):
+        self.edgelist.iloc[rowCount,] = [source, target]
+        rowCount += 1
+    self.edgelist.dropna(inplace = True)
+    self.edgelist = self.edgelist.drop_duplicates();
