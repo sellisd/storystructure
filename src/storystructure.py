@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import pandas as pd
+import sys
+import json
 
 class node(object):
   """Bare bones node class
@@ -83,10 +86,20 @@ class storystructure(object):
     """
     self.loadEdgelist(edges)
     self.loadNodeAttributes(nodes)
-    self.edgelist.drop_duplicates(); # Multigraph to simple graph (peinasmeni nistiki arkouda)
+
+  def simplify(self):
+    """Simplify graph by:
+       - Removing self loops
+       - Removing double edges (multigraph to simple graph)
+    """
+    self.edgelist = self.edgelist.drop_duplicates(); # Multigraph to simple graph (peinasmeni nistiki arkouda)
+    self.edgelist = self.edgelist[self.edgelist['source'] != self.edgelist['target']]
+
+  def makeGraph(self):
+    """From edgelist and node attributes create graph object
+    """
     for edge in self.edgelist.itertuples():
-      if edge.source != edge.target: #skipp self-loops
-        self.graph.addEdge(edge.source, edge.target)
+      self.graph.addEdge(edge.source, edge.target)
     self.graph.findRoots() # set the root
 
   def saveDot(self, fileName, graphName = "myGraph"):
@@ -105,42 +118,49 @@ class storystructure(object):
         elif line.attribute == "bad":
           color = self.colors['badColor']
         else:
-          print("Unknown attribute " + line.attribute)
+          print("Unknown attribute " + line.attribute, file=sys.stderr)
         f.write('{} [style=filled, fillcolor = "{}"];\n'.format(line.node, color))
       for edge in self.edgelist.itertuples():
         f.write(str(edge.source) + ' -> ' + str(edge.target) + ';\n')
       f.write('}\n')
 
-  def depth_first(self, root, path):
-    path.append(root.id)
-    if root.children:            #this is not a leaf
-      for child in root.children:
+  def savePathStats(self, root, filePath):
+    f = open(filePath, 'w')
+    f.write("\t".join(['pathLength', 'endType', 'numberOfPause', 'stepsToFirstPause', 'pathString\n']))
+    self.pathStream = f
+    self.depth_first(self.graph.nodes[root],[])
+
+  def depth_first(self, node, path):
+    path.append(node.id)
+    if node.children:            #this is not a leaf
+      for child in node.children:
         if child.id not in path:
           self.depth_first(child, path)
           path.pop()
         else:
-          print("Skipped descending into {} to avoid cycles".format(child.id))
+          print("Skipped descending into {} to avoid cycles".format(child.id), file=sys.stderr)
     else:
-      self.pathStatistics(path)
+      self.calculatePathStatistics(path)
 
-  def pathStatistics(self, path):
+  def calculatePathStatistics(self, path):
     badEndings = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="bad","node"]
     goodEndings = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="good","node"]
     pause = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="pause","node"]
-    pathId = path.pop()
     pathLength = len(path)
     endNode = path[-1]
-    if endNode in goodEndings:
+    endType = None
+    if endNode in goodEndings.values:
       endType = "good"
-    elif endNode in badEndings:
+    elif endNode in badEndings.values:
       endType = "bad"
     else:
-      print("Error: Nodelist and edgelist do not match!")
+      print("Error: Nodelist and edgelist do not match!", file=sys.stderr)
     numberOfPause = 0
     stepsToFirstPause = None
+    pathString = json.dumps(path)
     for i, node in enumerate(path):
       if node in pause:
         if stepsToFirstPause is None:
           stepsToFirstPause = i
           numberOfPause += 1
-    print("\t".join(pathId, pathLength, endType, numberOfPause, stepsToFirstPause))
+    self.pathStream.write("\t".join([str(entry) for entry in [pathLength, endType, numberOfPause, stepsToFirstPause, pathString]]) + '\n')
