@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-from __future__ import print_function
+from __future__ import print_function, division
+from itertools import combinations
+import random
 import pandas as pd
 import numpy as np
 import sys
@@ -182,3 +184,48 @@ class storystructure(object):
         rowCount += 1
     self.edgelist.dropna(inplace = True)
     self.edgelist = self.edgelist.drop_duplicates();
+    #nodes are not updated!
+
+  def clusterPaths(self, threshold, paths, pathsToDelete):
+    """Cluster paths by similarity
+    Args:
+    threshold     (float) Similarity ration for two paths to be merged
+    paths         (map)   Map of paths to be iteratively clustered
+    pathsToDelete (list)  List of path keys that should be deleted
+    """
+    tempPaths = paths.copy()
+    pathsToDelete = []
+    #for all path pairs calculate similarity index (common nodes/(sum of total))
+    for i, j in combinations(tempPaths, 2):
+      index = self.similarityIndex(tempPaths[i], tempPaths[j])
+      if index <= threshold:
+        newPath = self.mergePaths(tempPaths[i], tempPaths[j])
+        tempPaths[i] = newPath
+        pathsToDelete.append(j) #mark for deletion
+    return(pathsToDelete)
+
+  def iterativeClusterPaths(self, threshold):
+    """Iteratively cluster paths untill equilibration
+    Args:
+    threshold (float) Similarity ratio for two paths to be merged
+    """
+    tempPaths = self.paths.copy()
+    pathsToDelete = [None]
+    while pathsToDelete:
+      pathsToDelete = self.clusterPaths(threshold, tempPaths, [])
+      print("Iterative clustering: " + ",".join([str(i) for i in pathsToDelete]))
+      for path in pathsToDelete:
+        tempPaths.pop(path)
+    self.paths = tempPaths.copy()
+
+  def similarityIndex(self, setA, setB):
+    """Calculate similarity index between two sets (or lists)
+    """
+    shared = set(setA).intersection(set(setB))
+    union = set(setA).union(set(setB))
+    return(1 - len(shared)/(len(union)))
+
+  def mergePaths(self, pathA, pathB):
+    """Merge two paths, chose one of the two randomly
+    """
+    return(random.choice([pathA,pathB]))
