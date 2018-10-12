@@ -194,14 +194,14 @@ class storystructure(object):
     pathsToDelete (list)  List of path keys that should be deleted
     """
     tempPaths = paths.copy()
-    pathsToDelete = []
+    pathsToDelete = set()
     #for all path pairs calculate similarity index (common nodes/(sum of total))
     for i, j in combinations(tempPaths, 2):
       index = self.similarityIndex(tempPaths[i], tempPaths[j])
       if index <= threshold:
         newPath = self.mergePaths(tempPaths[i], tempPaths[j])
         tempPaths[i] = newPath
-        pathsToDelete.append(j) #mark for deletion
+        pathsToDelete.add(j) #mark for deletion
     return(pathsToDelete)
 
   def iterativeClusterPaths(self, threshold):
@@ -210,10 +210,9 @@ class storystructure(object):
     threshold (float) Similarity ratio for two paths to be merged
     """
     tempPaths = self.paths.copy()
-    pathsToDelete = [None]
+    pathsToDelete = {None}
     while pathsToDelete:
       pathsToDelete = self.clusterPaths(threshold, tempPaths, [])
-      print("Iterative clustering: " + ",".join([str(i) for i in pathsToDelete]))
       for path in pathsToDelete:
         tempPaths.pop(path)
     self.paths = tempPaths.copy()
