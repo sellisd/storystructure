@@ -46,8 +46,8 @@ call(["dot", "../data/dolmadakia/structureSimplified.dot", "-Tpng"], stdout = f)
 
 # make DAG graph
 a.makeGraph()
-print([i.id for i in a.getStart()])
-a.graph.setRoot(a.graph.nodes[7])
+#-print([i.id for i in a.getStart()])
+#-a.graph.setRoot(a.graph.nodes[7])
 a.savePathStats(7, '../data/dolmadakia/allPaths.dat')
 a.pathsToEdgelist()
 a.saveDot("../data/dolmadakia/structurePaths.dot")
@@ -60,3 +60,16 @@ a.pathsToEdgelist()
 a.saveDot("../data/dolmadakia/structurePaths.dot")
 f = open("../figs/dolmadakiaPathsClustered.png", "w")
 call(["dot", "../data/dolmadakia/structurePaths.dot", "-Tpng"], stdout = f)
+
+#
+b = storystructure()
+b.loadStory(edges = "../data/orientExpress/edgelist.csv")
+b.simplify()
+b.makeGraph()
+#b.getStart()
+#b.getStart()[0].id
+#b.graph.setRoot(6)
+b.savePathStats(7, '../data/orientExpress/allPaths.dat')
+b.saveDot("../data/orientExpress/structure.dot")
+f = open("../figs/orientExpress.png", "w")
+call(["dot", "../data/orientExpress/structure.dot", "-Tpng"], stdout = f)

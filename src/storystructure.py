@@ -53,8 +53,8 @@ class storystructure(object):
   """
   __version__ = "0.0.2"
   def __init__(self, title = "my story"):
-    self.edgelist = pd.DataFrame()
-    self.nodeAttributes = pd.DataFrame()
+    self.edgelist = pd.DataFrame(columns = ['source','target','type'])
+    self.nodeAttributes = pd.DataFrame(columns=['node','attribute'])
     self.colors = {
       'goodColor'  : "#7aa457", # green
       'pauseColor' : "#9e6ebd", # violet
@@ -83,14 +83,16 @@ class storystructure(object):
     """
     self.nodeAttributes = pd.read_csv(filePath)
 
-  def loadStory(self, edges, nodes):
+  def loadStory(self, edges = None, nodes = None):
     """Load story files and create data structure
        Args:
          edges (string) Path and filename of edgelist file (csv)
          nodes (string) Path and filename of node attributes file (csv)
     """
-    self.loadEdgelist(edges)
-    self.loadNodeAttributes(nodes)
+    if edges is not None:
+      self.loadEdgelist(edges)
+    if nodes is not None:
+      self.loadNodeAttributes(nodes)
 
   def simplify(self):
     """Simplify graph by:
@@ -106,6 +108,8 @@ class storystructure(object):
     for edge in self.edgelist.itertuples():
       self.graph.addEdge(edge.source, edge.target)
     self.graph.findRoots() # set the root
+    # the correct root is the one with the smallest value
+    self.root = min([i.id for i in self.graph.roots])
 
   def saveDot(self, fileName, graphName = "myGraph"):
     """Save edgelist in dot format
