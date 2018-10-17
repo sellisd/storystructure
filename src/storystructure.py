@@ -99,8 +99,20 @@ class storystructure(object):
        - Removing self loops
        - Removing double edges (multigraph to simple graph)
     """
-    self.edgelist = self.edgelist.drop_duplicates(); # Multigraph to simple graph (peinasmeni nistiki arkouda)
+    self.edgelist = self.edgelist.drop_duplicates() # Multigraph to simple graph (peinasmeni nistiki arkouda)
     self.edgelist = self.edgelist[self.edgelist['source'] != self.edgelist['target']]
+
+  def getDuplicates(self):
+    """Get double edges from a multigraph
+    Args: None
+    returns: Dataframe of duplicate edges
+    """
+    return(self.edgelist[self.edgelist.duplicated()])
+
+  def getSelfloops(self):
+    """Get self loops
+    """
+    self.edgelist[self.edgelist['source'] == self.edgelist['target']]
 
   def makeGraph(self):
     """From edgelist and node attributes create graph object
