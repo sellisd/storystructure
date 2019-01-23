@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 from itertools import combinations
+from pathlib import Path
+from subprocess import call
 import random
 import pandas as pd
 import numpy as np
@@ -144,6 +146,18 @@ class storystructure(object):
       for edge in self.edgelist.itertuples():
         f.write(str(edge.source) + ' -> ' + str(edge.target) + ';\n')
       f.write('}\n')
+      f.close()
+
+  def saveFig(self, filePath):
+      """Create a figure of the graph structure
+      Args:
+        fileName
+      """
+      file_path = Path(filePath) #from string to path object
+      self.saveDot(file_path.with_suffix('.dot'))
+      f = open(file_path, 'w')
+      call(["dot", file_path.with_suffix('.dot'), '-T'+file_path.suffix[1:]], stdout=f)
+      f.close()
 
   def savePathStats(self, root, filePath):
     f = open(filePath, 'w')
