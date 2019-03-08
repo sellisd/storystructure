@@ -8,6 +8,8 @@ import pandas as pd
 import numpy as np
 import sys
 import json
+import tempfile
+from shutil import copyfile
 
 class node(object):
   """Bare bones node class
@@ -125,11 +127,12 @@ class storystructure(object):
     # the correct root is the one with the smallest value
     self.root = min([i.id for i in self.graph.roots])
 
-  def saveDot(self, fileName, graphName = "myGraph"):
+  def saveDot(self, fileName, graphName = "myGraph", noSingle = False):
     """Save edgelist in dot format
        Args:
-         filePath (string):
-         dot ../data/file.dot -Tpng > ../figs/file.png
+         filePath string Path and file name of dot file
+         noSingle bool   If true remove any unconected single nodes and keep
+                         a single connected component
     """
     with open(fileName, 'w') as f:
       f.write("digraph " + graphName +" {\n")
@@ -147,23 +150,31 @@ class storystructure(object):
         f.write(str(edge.source) + ' -> ' + str(edge.target) + ';\n')
       f.write('}\n')
       f.close()
+    if noSingle == True:
+        TemporaryFile = tempfile.NamedTemporaryFile()
+        call('gvpr -c "N[$.degree==0]{delete(root, $)}" -o '+ str(TemporaryFile.name) + " '"+str(fileName)+"'", shell= True)
+        copyfile(TemporaryFile.name, str(fileName))
 
-  def saveFig(self, filePath):
+
+  def saveFig(self, filePath, noSingle = False):
       """Create a figure of the graph structure
       Args:
-        fileName
+        filePath string
+        noSingle bool   If true remove any unconected single nodes and keep
+                        a single connected component
+
       """
       file_path = Path(filePath) #from string to path object
-      self.saveDot(file_path.with_suffix('.dot'))
+      self.saveDot(file_path.with_suffix('.dot'), noSingle = noSingle)
       f = open(file_path, 'w')
       call(["dot", file_path.with_suffix('.dot'), '-T'+file_path.suffix[1:]], stdout=f)
       f.close()
 
   def savePathStats(self, root, filePath):
-    f = open(filePath, 'w')
-    f.write("\t".join(['pathLength', 'endType', 'numberOfPause', 'stepsToFirstPause', 'pathString\n']))
-    self.pathStream = f
-    self.depth_first(self.graph.nodes[root],[])
+    with open(filePath, 'w') as f:
+        f.write("\t".join(['pathLength', 'endType', 'numberOfPause', 'stepsToFirstPause', 'pathString\n']))
+        self.pathStream = f
+        self.depth_first(self.graph.nodes[root],[])
 
   def depth_first(self, node, path):
     path.append(node.id)
@@ -194,12 +205,12 @@ class storystructure(object):
       print("Error: Nodelist and edgelist do not match!", file=sys.stderr)
     numberOfPause = 0
     stepsToFirstPause = None
-    pathString = json.dumps(path)
+    pathString = str(path)
     for i, node in enumerate(path):
       if node in pause:
         if stepsToFirstPause is None:
           stepsToFirstPause = i
-          numberOfPause += 1
+        numberOfPause += 1
     self.pathStream.write("\t".join([str(entry) for entry in [pathLength, endType, numberOfPause, stepsToFirstPause, pathString]]) + '\n')
 
   def pathsToEdgelist(self):
