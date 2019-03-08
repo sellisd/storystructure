@@ -1,0 +1,137 @@
+---
+title: "Analysis"
+author: "Diamantis Sellis"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: html_document
+---
+
+```{r, loadLibraries}
+options(tidyverse.quiet = TRUE)
+library(tidyverse)
+library(cowplot)
+dataPath <- file.path(path.expand('~'),'Dropbox','storystructure','data')
+figPath <- file.path(path.expand('~'),'Dropbox','storystructure','figs')
+```
+
+```{r, loadData, message=FALSE}
+allPathsDolmadakia <- read_tsv(file.path(dataPath, "dolmadakia","allPaths.dat"), na = "None")
+allPathsOrientExpress <- read_tsv(file.path(dataPath, "orientExpress", "allPaths.dat"), na = "None")
+```
+
+## Dolmadakia
+
+Number of alternative paths: `r nrow(allPathsDolmadakia)`
+```{r}
+allPathsDolmadakia %>% 
+  group_by(endType) %>% 
+  summarise('Number Of Paths'=n(), 'Mean Path Length' = mean(pathLength), 'Standard Deviation of Path Length' = sd(pathLength)) %>% 
+  mutate(percentage = 100*`Number Of Paths`/sum(`Number Of Paths`))
+```
+```{r, pathLength, fig.cap="Distribution of alternative story path lengts"}
+fig2a <- (allPathsDolmadakia %>%
+  ggplot(aes(x = pathLength, fill = endType)) + 
+  geom_histogram(binwidth = 1) + 
+  theme_classic() + 
+  xlab("Path length (pages)") + 
+  ylab("Paths") +
+  scale_fill_brewer(name = "Story ending", palette = "Pastel1") + 
+  theme(legend.position = c(0.25, 0.8)))
+```
+
+```{r, stepsToFirstPause, fig.cap="Distribution of steps until firsta pause", warning=FALSE}
+allPathsDolmadakia %>%
+  ggplot(aes(x = stepsToFirstPause, fill = endType)) +
+  geom_histogram(binwidth = 1) + 
+  xlab("Number of steps to first pause (pages)") + 
+  ylab("Paths") +
+  scale_fill_brewer(name = "Story ending", palette = "Pastel1") + 
+  theme_classic()
+ggsave(file.path(figPath,'fig3.png'))
+```
+
+```{r, numberOfPause}
+table1 <- (allPathsDolmadakia %>%
+  group_by(endType,numberOfPause) %>% 
+  summarise(numberOfPaths = n()) %>% 
+  spread(key=numberOfPause, value = numberOfPaths) %>% 
+  rename('No Pause'=`0`, 'Story ending' = endType))
+knitr::kable(table1)
+```
+
+
+```{r}
+CutoffEffect <-  read_csv(file.path(dataPath, "dolmadakia","CutoffEffect.dat"))
+
+fig6a <- (CutoffEffect %>% 
+  ggplot(aes(x = Threshold, y = NumberOfPaths)) +
+  geom_point() + scale_x_continuous(trans = 'log10') + 
+  scale_y_continuous(trans = 'log10')+
+  annotation_logticks(sides="lb"))
+```
+
+Distribution of pages to flip forward or backward at each choice
+```{r}
+edgelistDolmadakia <- read_csv(file.path(dataPath, "dolmadakia","edgelist.csv"), na = "None")
+fig4a <- (edgelistDolmadakia %>% 
+  mutate(difference = target - source) %>% 
+  ggplot(aes(x = difference)) + geom_histogram(binwidth = 10))
+```
+
+## Orient Express
+
+Number of alternative paths: `r nrow(allPathsOrientExpress)`
+Mean path length: `r mean(allPathsOrientExpress$pathLength)`
+Standard deviation of path length: `r sd(allPathsOrientExpress$pathLength)`
+
+
+```{r}
+fig2b <- (allPathsOrientExpress %>%
+  ggplot(aes(x = pathLength)) +
+  geom_histogram(binwidth = 1) + 
+  xlab("Path length (pages)") + 
+  ylab("Paths") +
+  theme_classic())
+```
+
+Distribution of pages to flip forward or backward at each choice
+```{r}
+edgelistOrientExpress <- read_csv(file.path(dataPath, "orientExpress","edgelist.csv"), na = "None")
+fig4b <- (edgelistOrientExpress %>% 
+  mutate(difference = target - source) %>% 
+  ggplot(aes(x = difference)) + geom_histogram(binwidth = 1))
+```
+
+```{r}
+CutoffEffect <-  read_csv(file.path(dataPath, "orientExpress","CutoffEffect.dat"))
+
+fig6b <- (CutoffEffect %>% 
+  ggplot(aes(x = Threshold, y = NumberOfPaths)) +
+  geom_point() + scale_x_continuous(trans = 'log10') + 
+  scale_y_continuous(trans = 'log10')+
+  annotation_logticks(sides="lb"))
+```
+
+## Save plots
+```{r}
+fig1a <- ggdraw() + draw_image(file.path(figPath, "dolmadakia.png"))
+fig1b <- ggdraw() + draw_image(file.path(figPath, "orientExpress.png"))
+
+fig5a <- ggdraw() + draw_image(file.path(figPath, "dolmadakiaPathsClustered.png"))
+fig5b <- ggdraw() + draw_image(file.path(figPath, "orientExpressPathsClustered.png"))
+
+fig1 <- plot_grid(fig1a, fig1b, labels=c('A','B'), ncol = 2, scale=c(0.9,0.7))
+fig2 <- plot_grid(fig2a, fig2b, labels=c('A','B'), ncol =2)
+fig4 <- plot_grid(fig4a, fig4b, labels=c('A','B'), ncol =2)
+fig5 <- plot_grid(fig5a, fig5b, labels = c('A', 'B'), ncol = 2, scale = c(0.95, 0.8))
+fig6 <- plot_grid(fig6a, fig6b, labels = c('A', 'B'))
+fig1
+fig2
+fig4
+fig5
+fig6
+save_plot(file.path(figPath,"fig1.png"), fig1)
+save_plot(file.path(figPath,"fig2.png"), fig2)
+save_plot(file.path(figPath,"fig4.png"), fig4)
+save_plot(file.path(figPath,"fig5.png"), fig5)
+save_plot(file.path(figPath,"fig6.png"), fig6)
+```
