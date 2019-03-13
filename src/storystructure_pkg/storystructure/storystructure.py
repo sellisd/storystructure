@@ -57,7 +57,7 @@ class storystructure(object):
   """
   __version__ = "0.0.2"
   def __init__(self, title = "my story"):
-    self.edgelist = pd.DataFrame(columns = ['source','target','type'])
+    self.edgelist = pd.DataFrame(columns = ['source','target'])
     self.nodeAttributes = pd.DataFrame(columns=['node','attribute'])
     self.colors = {
       'goodColor'  : "#7aa457", # green
