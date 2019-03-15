@@ -29,3 +29,5 @@ To use the package two input data files are necessary:
 
     from storystructure.storystructure import storystructure
     s = storystructure.storystructure()
+
+An more detailed example is included in the jupyter notebook ``scripts/Tutorial.ipybn``

@@ -10,7 +10,7 @@ Welcome to storystructure's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. include:: ../readme.rst
+.. include:: ../../readme.rst
 
 Indices and tables
 ==================
