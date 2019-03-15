@@ -1,12 +1,14 @@
 A Python package to explore the structure of branching stories.
 
 Requirements
-============
+------------
 
 The module has been developed with python 3.6.6 and the following modules. Other
 versions might work also but have not been tested:
 
-.. include:: requirements.txt
+* ``pathlib2 v.2.2.0``
+* ``pandas v.0.19.2``
+* ``numpy v.1.11.3``
 
 Installation
 ------------
