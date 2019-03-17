@@ -223,12 +223,15 @@ class storystructure(object):
         """Transform a set of paths to an edgelist and update the storystructure's
            edgelist.
         """
-        self.edgelist = pd.DataFrame(index = np.arange(100000), columns = ["source","target"])
+        max_rows = 100000
+        self.edgelist = pd.DataFrame(index = np.arange(max_rows), columns = ["source","target"])
         rowCount = 0
         for path in self.paths.values():
             for source, target in zip(path[0:-1],path[1:]):
                 self.edgelist.iloc[rowCount,] = [source, target]
                 rowCount += 1
+                print(rowCount)
+        assert rowCount <= max_rows,"More paths than max_rows."
         self.edgelist.dropna(inplace = True)
         self.edgelist = self.edgelist.drop_duplicates();
         #nodes are not updated!
