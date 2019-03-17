@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output: html_document
 ---
 
-```{r, loadLibraries}
+```{r, loadLibraries, echo = FALSE, warning = FALSE}
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
 library(cowplot)
