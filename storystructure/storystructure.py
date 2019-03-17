@@ -2,6 +2,19 @@
 .. module:: storystructure
    :synopsis: A python3 module to analyze the story structure of branching books.
 """
+
+import json
+from itertools import combinations
+from pathlib import Path
+import random
+from shutil import copyfile
+from subprocess import call
+import sys
+import tempfile
+
+import numpy as np
+import pandas as pd
+
 class node(object):
     """Bare bones node class
     """
@@ -46,7 +59,7 @@ class digraph(object):
 class storystructure(object):
     """Python tools for analysing story structures
     """
-    __version__ = "0.0.2"
+    __version__ = "0.0.3"
     def __init__(self, title = "my story"):
         self.edgelist = pd.DataFrame(columns = ['source','target'])
         self.nodeAttributes = pd.DataFrame(columns=['node','attribute'])
@@ -118,7 +131,7 @@ class storystructure(object):
             self.graph.addEdge(edge.source, edge.target)
         self.graph.findRoots() # set the root
         # guess the correct root, should be the one with the smallest value
-        self.root = min([i.id for i in self.graph.roots])
+        self.graph.root = min([i.id for i in self.graph.roots])
 
     def saveDot(self, fileName, graphName = "myGraph", noSingle = False):
         """Save edgelist in dot format.
@@ -161,7 +174,9 @@ class storystructure(object):
         call(["dot", file_path.with_suffix('.dot'), '-T'+file_path.suffix[1:]], stdout=f)
         f.close()
 
-    def savePathStats(self, root, filePath):
+    def savePathStats(self, filePath, root = None):
+        if root is None:
+            root = self.graph.root
         with open(filePath, 'w') as f:
             f.write("\t".join(['pathLength', 'endType', 'numberOfPause', 'stepsToFirstPause', 'pathString\n']))
             self.pathStream = f

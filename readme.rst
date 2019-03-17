@@ -28,6 +28,14 @@ To use the package two input data files are necessary:
 .. code-block:: python
 
     from storystructure.storystructure import storystructure
+    # create a new object
     s = storystructure.storystructure()
+    # load an edgelist and node attributes
+    s.loadStory(edges='edgelist.csv',
+                nodes='nodeAttributes.csv')
+    s.saveFig('graph'.png')     # Make figure
+    s.simplify() # Removing self loops and double edges
+    s.makeGraph()
+    s.savePathStats('allPaths.dat')
 
 An more detailed example is included in the jupyter notebook ``scripts/Tutorial.ipybn``
