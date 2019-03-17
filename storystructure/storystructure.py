@@ -230,7 +230,6 @@ class storystructure(object):
             for source, target in zip(path[0:-1],path[1:]):
                 self.edgelist.iloc[rowCount,] = [source, target]
                 rowCount += 1
-                print(rowCount)
         assert rowCount <= max_rows,"More paths than max_rows."
         self.edgelist.dropna(inplace = True)
         self.edgelist = self.edgelist.drop_duplicates();
