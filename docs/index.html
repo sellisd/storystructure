@@ -46,7 +46,11 @@
 <h1>Welcome to storystructure&#8217;s documentation!<a class="headerlink" href="#welcome-to-storystructure-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>A Python package to explore the structure of branching stories.</p>
+</div>
+<div class="section" id="storystructure">
+<h1>storystructure<a class="headerlink" href="#storystructure" title="Permalink to this headline">¶</a></h1>
+<p>A Python package to explore the structure of branching stories.
+<cite>Documentation &lt;https://sellisd.github.io/storystructure/&gt;</cite></p>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <p>The module has been developed with python 3.6.6 and the following modules. Other
@@ -71,7 +75,15 @@ versions might work also but have not been tested:</p>
 <li>A <em>node attributes</em> file with columns <code class="docutils literal"><span class="pre">node</span></code> and <code class="docutils literal"><span class="pre">attribute</span></code>. The attribute column must be on of the following values <code class="docutils literal"><span class="pre">good</span></code>, <code class="docutils literal"><span class="pre">bad</span></code>, <code class="docutils literal"><span class="pre">pause</span></code>.</li>
 </ul>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">storystructure.storystructure</span> <span class="kn">import</span> <span class="n">storystructure</span>
+<span class="c1"># create a new object</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">storystructure</span><span class="o">.</span><span class="n">storystructure</span><span class="p">()</span>
+<span class="c1"># load an edgelist and node attributes</span>
+<span class="n">s</span><span class="o">.</span><span class="n">loadStory</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="s1">&#39;edgelist.csv&#39;</span><span class="p">,</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;nodeAttributes.csv&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">saveFig</span><span class="p">(</span><span class="s1">&#39;graph&#39;</span><span class="o">.</span><span class="n">png</span><span class="s1">&#39;)     # Make figure</span>
+<span class="n">s</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span> <span class="c1"># Removing self loops and double edges</span>
+<span class="n">s</span><span class="o">.</span><span class="n">makeGraph</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">savePathStats</span><span class="p">(</span><span class="s1">&#39;allPaths.dat&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>An more detailed example is included in the jupyter notebook <code class="docutils literal"><span class="pre">scripts/Tutorial.ipybn</span></code></p>
@@ -94,7 +106,8 @@ versions might work also but have not been tested:</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Welcome to storystructure&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#">Welcome to storystructure&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#storystructure">storystructure</a><ul>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#example-usage">Example usage</a></li>

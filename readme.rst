@@ -1,4 +1,8 @@
+storystructure
+==============
+
 A Python package to explore the structure of branching stories.
+`Documentation <https://sellisd.github.io/storystructure/>`
 
 Requirements
 ------------
