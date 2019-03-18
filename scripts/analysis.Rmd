@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output: html_document
 ---
 
-```{r, loadLibraries, echo = FALSE, warning = FALSE}
+```{r, loadLibraries, echo = FALSE, warning = FALSE, message = FALSE}
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
 library(cowplot)
@@ -22,10 +22,14 @@ allPathsOrientExpress <- read_tsv(file.path(dataPath, "orientExpress", "allPaths
 
 Number of alternative paths: `r nrow(allPathsDolmadakia)`
 ```{r}
-allPathsDolmadakia %>% 
+table1 <- (allPathsDolmadakia %>% 
   group_by(endType) %>% 
   summarise('Number Of Paths'=n(), 'Mean Path Length' = mean(pathLength), 'Standard Deviation of Path Length' = sd(pathLength)) %>% 
-  mutate(percentage = 100*`Number Of Paths`/sum(`Number Of Paths`))
+  mutate(percentage = 100*`Number Of Paths`/sum(`Number Of Paths`)))
+knitr::kable(table1)
+t.test(allPathsDolmadakia$pathLength[allPathsDolmadakia$endType=="good"],
+       allPathsDolmadakia$pathLength[allPathsDolmadakia$endType=="bad"],
+       alternative = "greater")
 ```
 ```{r, pathLength, fig.cap="Distribution of alternative story path lengts"}
 fig2a <- (allPathsDolmadakia %>%
