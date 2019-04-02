@@ -175,6 +175,12 @@ class storystructure(object):
         f.close()
 
     def savePathStats(self, filePath, root = None):
+        """Save statistics of each path.
+
+        Args:
+            filePath (string):    Path and filename.
+            root     (node=None): If provided start from given node else use root
+        """
         if root is None:
             root = self.graph.root
         with open(filePath, 'w') as f:
@@ -182,7 +188,15 @@ class storystructure(object):
             self.pathStream = f
             self.depth_first(self.graph.nodes[root],[])
 
-    def depth_first(self, node, path):
+    def depth_first(self, node, path, verbose = False):
+        """
+        Traverse the graph to explore all paths.
+
+        Args:
+            node (node)   : Starting node of the traversal.
+            path (list)   : Keep track of how many times a node has been visited.
+            verbose (bool): If true print message every time a node is skipped.
+        """
         path.append(node.id)
         if node.children:            #this is not a leaf
             for child in node.children:
@@ -190,13 +204,20 @@ class storystructure(object):
                     self.depth_first(child, path)
                     path.pop()
                 else:
-                    print("Skipped descending into {} to avoid cycles".format(child.id), file=sys.stderr)
+                    if verbose:
+                        print("Skipped descending into {} to avoid cycles".format(child.id), file=sys.stderr)
         else:
             self.calculatePathStatistics(path)
             self.paths[self.pathCounter] = path[:] #path.copy
             self.pathCounter += 1
 
     def calculatePathStatistics(self, path):
+        """
+        Summary statistics for paths on graph.
+
+        Args:
+            path (list): Paths visited
+        """
         badEndings = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="bad","node"]
         goodEndings = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="good","node"]
         pause = self.nodeAttributes.loc[self.nodeAttributes['attribute']=="pause","node"]
