@@ -5,7 +5,7 @@ with open("readme.rst", "r") as fh:
 
 setuptools.setup(
     name="storystructure",
-    version="1.0.1",
+    version="1.0.2",
     author="Diamantis Sellis",
     author_email="sellisd@gmail.com",
     description="Tools for analysing the structure of branching stories",
